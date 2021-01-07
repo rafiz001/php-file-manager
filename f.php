@@ -1,5 +1,5 @@
 <?php
-$password="da47aa24f9d25de9c8dd9b0ec4c29fad"; //use md5t.php to generate password .
+$password="ca6f1d1bd33445fce8cc27af56730c38"; //use md5t.php to generate password .
 $disallowed_access_list=array("PHP","php","asp","ASP","pdf","PDF",); //for edit,upload,hidden,copy from web,rename
 $show_all_files=true;  //prevent showing files as above array on false
 $can_go_back=true;  //prevent going back from home using "duble dot" on false
