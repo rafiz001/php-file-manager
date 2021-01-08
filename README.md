@@ -5,7 +5,7 @@ A good file manager. Specially for Muslim.
 
  To do:
 * Download <a href="https://rafiz001.github.io/php-file-manager-islamic/f.php">f.php</a>
-* Make a password using md5(md5(md5("your password"))) function. Or use <a href="https://rafiz001.github.io/php-file-manager-islamic/md5t.php">md5t.php</a>to get your password.
+* Make a password using md5(md5(md5("your password"))) function. Or use <a href="https://rafiz001.github.io/php-file-manager-islamic/md5t.php">md5t.php</a> to get your password.
 * Go your text editor for f.php; then set your password at $password variable.
 * Now it is ready to go....
 * Please make a good DUYA for the developer(Mohammod Rafiz Uddin).
