@@ -8,6 +8,12 @@ $can_edit_all=true;  //prevent editng files as above array on false
 $can_copynet_all=true; //prevent "copy from web" as above array on false
 $can_rename_all=true; //prevent rename as above array on false
 date_default_timezone_set('Asia/Dhaka');
+function maxchar($v)
+{
+  $a=300;
+ if(strlen($v)>$a)$v=substr($v,0,$a)."...";
+  return nl2br($v);
+}
 function can_access($filen)
 {
 global $disallowed_access_list;
@@ -33,7 +39,7 @@ if(!isset($_SESSION["t33pk5rafiz"])||$_SESSION["t33pk5rafiz"]!=$password){
 
   die(
 '
-<form method="post"><select name="theme"><option value="dark">Dark</option><option value="light">Light</option></select><input type="password" value="" name="pass">
+<form method="post"><select name="theme"><option value="dark">Dark</option><option value="light">Light</option></select><input type="password" autofocus="true" name="pass">
   <button>Login</button>
   </form>
 
@@ -369,6 +375,12 @@ if(isset($_POST["gds"])){
 
 echo "<script>alert('(All data showing as aprx)\\nThis directory: ".data(gds($_POST["gds"]))." (".gds($_POST["gds"])."bytes)\\nDisk total space: ".data(disk_total_space("/"))."\\nDisk free space: ".data(disk_free_space("/"))."\\nDisk used space: ".data((disk_total_space("/")-disk_free_space("/")))."');</script>";
 }
+if(isset($_POST["act"])&&$_POST["act"]=="sqlt"){
+$dbp=$_POST["dd"]."/".$_POST["d"].".db";
+
+
+$db = new SQLite3($dbp);
+}
 
 ?>
 
@@ -463,7 +475,7 @@ text-align:center;
 
 
   ?>
-  td{padding: 7px;}
+  td,th{padding: 7px;}
   body{font-family: arial;}
 .folimg{height: 10px;
     width: 10px;
@@ -474,6 +486,12 @@ text-align:center;
   cursor: alias;
 
 }
+.op{
+  background: green;
+  color: white;
+  border-radius: 10px;
+  padding: 3px;
+}
 </style>
 
 
@@ -483,7 +501,7 @@ text-align:center;
 
 
   <body>
-
+<a href="<?php echo $o."?dir=".$_GET['dir'];if(isset($_GET['file']))echo "&file=".$_GET['file'];?>">REFRESH</a><br>
 
 <?php
 if(isset($_SESSION["c"])){
@@ -508,6 +526,8 @@ fwrite($myfile, $txt);fclose($myfile);print( "updated: ".$_POST["path"]."<br>bac
 if(isset($_GET["file"])){
    if(!$can_edit_all&&!can_access($_GET["file"])){}else{
   if(is_file($_GET["file"])){
+$dbt=explode(".",$_GET["file"]);$dbt=$dbt[count($dbt)-1];
+if($dbt!="db"){
   $rafiz = fopen($_GET["file"], "r");
   $t="";
   while(!feof($rafiz)) {
@@ -518,7 +538,88 @@ if(isset($_GET["file"])){
   <div id='s'></div>";
 
 
+}else{
 
+echo "<form method='post'><fieldset><legend>SQLITE: <b>{$_GET["file"]}</b></legend>";
+  $db = new SQLite3($_GET["file"]);
+
+  $tbldb = $db->query("SELECT * FROM sqlite_master  WHERE type='table' ORDER BY type DESC");
+  echo "<span style='border: 1px solid purple'>All table(s): ";
+  while($rr=$tbldb->fetchArray()){
+
+    echo $rr["tbl_name"]." ; ";
+
+}
+echo "</span><br><br>";
+?>
+
+<span class="op" onclick="sqlt('SELECT * FROM `table_name` LIMIT 20')">Select</span>
+<span class="op" onclick='sqlt("CREATE TABLE `table_name` (\n	\"id\"	INTEGER,\n	\"Field2\"	TEXT UNIQUE,\n	\"Field3\"	NUMERIC,\n	\"Field4\"	BLOB,\n	PRIMARY KEY(\"id\" AUTOINCREMENT)\n)")'>Create</span>
+<span class="op" onclick="sqlt('INSERT INTO `table_name` (,,,)\nVALUES (\'\',\'\',\'\',\'\')')">Insert</span>
+<span class="op" onclick="sqlt('UPDATE `table_name`\nSET `col1`=\'val1\',`col2`=\'val2\' \nWHERE `ncol`=\'nval\';')">Update</span>
+<span class="op" onclick="sqlt('DELETE FROM `table_name`\nWHERE `col`=\'val\' ')">Delete</span>
+<span class="op" onclick="sqlt('SELECT `sql` FROM `sqlite_master`  WHERE type=\'table\' AND `name` =\'table_name\' ')">Table pre SQL</span><br>
+<textarea id="sqlt" cols="40" rows="10" placeholder="Write your custom SQL here..." name="sqlt">
+<?php if(isset($_POST["sqlt"]))echo $_POST["sqlt"];?>
+</textarea><br>
+<input type="radio" name="table" value="1">Display result if possible(may execute 2 times)<br>
+<input type="radio" name="table" value="0" checked >Display no result<br>
+<script type="text/javascript">
+  function sqlt(sqltt) {
+
+    document.getElementById("sqlt").innerHTML=sqltt;
+  }
+</script>
+<br>
+<input type="submit">
+
+<?php
+if(isset($_POST["sqlt"])){
+  for ($i=0; $i < 100; $i++) {
+    $hhh[$i]=$i;
+  }
+
+
+
+$sqqll=$db->query("{$_POST["sqlt"]}");
+$err=$db->lastErrorMsg();
+if($err=="not an error"){echo "<br>SQL execution succeed!";}else{echo "<br>SQL ERROR: ".$err."<br>";}
+
+
+
+if($_POST["table"]!="0"){
+$kijani=0;
+while ($rowdbt=$sqqll->fetchArray(SQLITE3_ASSOC)) {
+  if(is_array($rowdbt)){
+if($kijani==0){
+
+  echo "<table><tr>";
+  foreach(array_keys($rowdbt) as $c_db2){
+    echo "<th><i>$c_db2</i></th>";
+  }echo "</tr>";
+$kijani++;
+}
+
+
+echo "<tr>";
+
+  foreach($rowdbt as $c_db){
+    echo "<td>".maxchar($c_db)."</td>";
+
+  }
+  echo "</tr>";
+  }//table for array result
+
+}
+
+echo "</table>";
+}
+
+
+
+}//sqlite_action
+echo "</fieldset></form>";
+}
 }else echo "File not found!";
 }
 }
@@ -572,6 +673,7 @@ if(isset($fil)){foreach($fil as $f){
 <option value="del" >Delete</option>
 <option value="md" >Make folder</option>
 <option value="mf" >Make file</option>
+<option value="sqlt">Make SQLITE3 database</option>
 <option value="copy" >Copy</option>
 
 <option value="rename" >Rename</option>
@@ -581,6 +683,7 @@ if(isset($fil)){foreach($fil as $f){
 <option value="unzip" >UnZIP</option>
 <option value="down" >Download</option>
 <option value="net">Copy from web</option>
+
 </select>
 <div id="ex"></div>
 <script>
@@ -653,6 +756,7 @@ function oonclick(vll) {
 if(vll=="---"){document.getElementById("ex").innerHTML="";}
 if(vll=="copyp"){copyp();}
 if(vll=="copym"){copym();}
+if(vll=="sqlt"){document.getElementById("ex").innerHTML='New database name:<input type="text" name="d" />.db<input type="hidden" name="dd" value="<?php echo $_GET["dir"]; ?>" /><br><input type="Submit" value="Create">;'}
 }
 function dclick(loc,dat,size=null,mim=null) {
   if(size!=null&&size!=null){
