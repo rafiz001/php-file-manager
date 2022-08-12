@@ -1,6 +1,6 @@
 بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ   In the name of ALLAH, the Most Gracious, the Most Merciful
-# php-file-manager-islamic
-A good file manager. Specially for Muslim.
+# php-file-manager
+A simple but powerful php based file manager.
 <img src="ui.png">
 
  To do:
